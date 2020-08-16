@@ -13,11 +13,13 @@ router.get('/:id', (req, res) => {
     const checkMember = member => member.id === Number(req.params.id);
     const found = members.some(checkMember);
 
-    found
-        ? res.json(members.filter(checkMember))
-        : res
-              .status(400)
-              .json({ msg: `No member with the id of ${req.params.id}` });
+    if (found) {
+        res.json(members.filter(checkMember));
+    } else {
+        res.status(400).json({
+            msg: `No member with the id of ${req.params.id}`,
+        });
+    }
 });
 
 // Create Member
@@ -36,8 +38,32 @@ router.post('/', (req, res) => {
     }
 
     members.push(newMember);
-
     res.json(members);
+});
+
+// Update member
+router.put('/:id', (req, res) => {
+    const found = members.some(member => member.id === Number(req.params.id));
+
+    if (found) {
+        members.forEach(member => {
+            if (member.id === Number(req.params.id)) {
+                const { name, email } = req.body;
+
+                member.name = name ? name : member.name;
+                member.email = email ? email : member.email;
+
+                res.json({
+                    msg: 'Member updated',
+                    member,
+                });
+            }
+        });
+    } else {
+        res.status(400).json({
+            msg: `No member with the id of ${req.params.id}`,
+        });
+    }
 });
 
 module.exports = router;
